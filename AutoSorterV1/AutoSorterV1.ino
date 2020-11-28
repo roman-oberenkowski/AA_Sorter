@@ -46,8 +46,8 @@ void setup()
   }
 
   // Running Threads
-  xTaskCreate( GaugeTask, "GaugeTask", 128, NULL, 2, NULL );
-  xTaskCreate( CartTask, "CartTask", 128, NULL, 1, NULL );
+  xTaskCreate( GaugeTask, "GaugeTask", 128, NULL, 1, NULL );
+  xTaskCreate( CartTask, "CartTask", 128, NULL, 3, NULL );
 }
 
 void load_battery() {
@@ -119,10 +119,7 @@ void drop_battery_to_box(BatteryBoxes box) {
       break;
   }
   move_cart(CART_RIGHT_PIN, duration);
-  dropper.runToNewPosition(450);
-  vTaskDelay(100 / portTICK_PERIOD_MS);
-  dropper.runToNewPosition(0);
-  vTaskDelay(500 / portTICK_PERIOD_MS);
+  xTaskCreate( DropperTask, "DropperTask", 128, NULL, 2, NULL );
   move_cart(CART_LEFT_PIN, duration * 1.2);
 }
 
@@ -133,6 +130,13 @@ void loop() {
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
+void DropperTask( void *pvParameters )
+{
+  dropper.runToNewPosition(450);
+  vTaskDelay(100 / portTICK_PERIOD_MS);
+  dropper.runToNewPosition(0);
+  vTaskDelay(500 / portTICK_PERIOD_MS);
+}
 
 void CartTask( void *pvParameters )
 {
