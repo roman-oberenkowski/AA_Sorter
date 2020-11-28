@@ -124,7 +124,7 @@ void drop_battery_to_box(BatteryBoxes box) {
       break;
   }
   move_cart(CART_RIGHT_PIN, duration);
-  xSemaphoreGive(xDroperOpenMutex);
+  xSemaphoreGive(xDropperOpenMutex);
   move_cart(CART_LEFT_PIN, duration * 1.2);
 }
 
@@ -146,7 +146,7 @@ void DropperTask( void *pvParameters )
   
   while(1)
   {
-    if(xSemaphoreTake(xDroperOpenMutex, portMAX_DELAY) == pdTRUE)
+    if(xSemaphoreTake(xDropperOpenMutex, portMAX_DELAY) == pdTRUE)
     {
       dropper.runToNewPosition(450);
       vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -167,7 +167,7 @@ void CartTask( void *pvParameters )
 
   // Cart is in position
   xSemaphoreGive(xCartMutex);
-  xSemaphoreGive(xDropperMutex);
+  xSemaphoreGive(xDropperCloseMutex);
   while (1)
   {
     if( xSemaphoreTake(xBatteryMutex, portMAX_DELAY) == pdTRUE )
@@ -202,7 +202,7 @@ void GaugeTask( void *pvParameters )
     selected_box_thread = measure_voltage();
     while ( xSemaphoreTake(xCartMutex, portMAX_DELAY) != pdTRUE ) { vTaskDelay(500 / portTICK_PERIOD_MS); }
     selected_box = selected_box_thread;
-    while ( xSemaphoreTake(xDroppeCloserMutex, portMAX_DELAY) != pdTRUE ) { vTaskDelay(100 / portTICK_PERIOD_MS); }
+    while ( xSemaphoreTake(xDropperCloseMutex, portMAX_DELAY) != pdTRUE ) { vTaskDelay(100 / portTICK_PERIOD_MS); }
     eject_battery();
     xSemaphoreGive(xBatteryMutex);
     vTaskDelay(100 / portTICK_PERIOD_MS);
