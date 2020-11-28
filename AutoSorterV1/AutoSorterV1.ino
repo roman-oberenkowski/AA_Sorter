@@ -149,7 +149,7 @@ void DropperTask( void *pvParameters )
     if(xSemaphoreTake(xDropperOpenMutex, portMAX_DELAY) == pdTRUE)
     {
       dropper.runToNewPosition(450);
-      vTaskDelay(100 / portTICK_PERIOD_MS);
+      vTaskDelay(500 / portTICK_PERIOD_MS);
       dropper.runToNewPosition(0);
       vTaskDelay(500 / portTICK_PERIOD_MS);
       xSemaphoreGive(xDropperCloseMutex);
