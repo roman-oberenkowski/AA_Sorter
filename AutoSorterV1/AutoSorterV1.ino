@@ -10,12 +10,11 @@
 #define LOADER_STEP_PIN 11
 #define LOADER_DIRECTION_PIN 10
 
-#define BATTERY_VOLTAGE_PIN A5
-
 #define MEASURE_SERVO_PIN 9
 #define MEASURE_SERVO_OPEN_POSITION 66
 #define MEASURE_SERVO_CLOSE_POSITION 33
 
+#define BATTERY_VOLTAGE_PIN A5
 #define VOLTAGE_MEDIUM_TRESHOLD 250
 #define VOLTAGE_HIGH_TRESHOLD 290
 
@@ -27,13 +26,9 @@ Servo measure_servo;
 SemaphoreHandle_t xCartMutex;
 SemaphoreHandle_t xBatteryMutex;
 
-enum BatteryBoxes {
-  empty,
-  partial,
-  full
-}
+enum BatteryBoxes { empty, partial, full };
 
-BatteryState selected_box;
+BatteryBoxes selected_box = empty;
 
 void CartTask( void *pvParameters );
 void GaugeTask( void *pvParameters );
@@ -46,40 +41,16 @@ void setup()
   // Creating Mutexes
   xCartMutex = xSemaphoreCreateBinary();    // Cart is ready to accept new battery
   xBatteryMutex = xSemaphoreCreateBinary(); // Battery is ready to be loaded into a dropper
-  if (xCartMutex != NULL && xBatteryMu != NULL) {
+  if (xCartMutex != NULL && xBatteryMutex != NULL) {
     Serial.println("Mutex created");
   }
 
-  // Measure Servo Setup
-  measure_servo.attach(MEASURE_SERVO_PIN);
-  measure_servo.write(MEASURE_SERVO_OPEN_POSITION);
-
-  // Setup Loader
-  loader.setMaxSpeed(1000);
-  loader.setAcceleration(10000);
-  loader.setSpeed(1000);
-  pinMode(LOADER_DISABLE_PIN, OUTPUT);
-
-  // Setup Dropper
-  dropper.setMaxSpeed(500);
-  dropper.setAcceleration(1000);
-  dropper.setSpeed(100);
-  
-  pinMode(CART_LEFT_PIN, OUTPUT);
-  pinMode(CART_RIGHT_PIN, OUTPUT);
-  calibrate();
-  loader.runToNewPosition(0);
-  timedWrite(CART_LEFT_PIN, 1600);
-  digitalWrite(LOADER_DISABLE_PIN, HIGH);
-
   // Running Threads
-  xSemaphoreGive(xCartMutex);
   xTaskCreate( GaugeTask, "GaugeTask", 128, NULL, 2, NULL );
   xTaskCreate( CartTask, "CartTask", 128, NULL, 1, NULL );
 }
 
-// Load battery to measurement
-void fetch_battery() {
+void load_battery() {
   digitalWrite(LOADER_DISABLE_PIN, LOW);
   loader.runToNewPosition(300);
   delay(1000);
@@ -87,7 +58,6 @@ void fetch_battery() {
   digitalWrite(LOADER_DISABLE_PIN, HIGH);
 }
 
-// Sent battery to cart
 void eject_battery() {
   digitalWrite(LOADER_DISABLE_PIN, LOW);
   loader.runToNewPosition(-700);
@@ -98,13 +68,12 @@ void eject_battery() {
 
 BatteryBoxes measure_voltage() {
   BatteryBoxes box;
-  min = 999;
-  max = 0;
+  int min = 999;
+  int max = 0;
   int voltage = 0;
   
   measure_servo.write(MEASURE_SERVO_CLOSE_POSITION);
   delay(1000);
-
 
   for(int i=0; i<7;i++)
   {
@@ -129,52 +98,32 @@ BatteryBoxes measure_voltage() {
   return box;
 }
 
-// Move cart 
-void timedWrite(int pin, int milis) {
+void move_cart(int pin, int milis) {
   digitalWrite(pin, HIGH);
   delay(milis);
   digitalWrite(pin, LOW);
-
 }
 
-void calibrate() {
-  dropper.runToNewPosition(1202);
-  dropper.runToNewPosition(2);
-
-}
-
-void drop() {
+void drop_battery_to_box(BatteryBoxes box) {
+  int duration;
+  switch (box)
+  {
+    case empty:
+      duration = 0;
+      break;
+    case partial:
+      duration = 600;
+      break;
+    case full:
+      duration = 1200;
+      break;
+  }
+  move_cart(CART_RIGHT_PIN, duration);
   dropper.runToNewPosition(450);
   delay(100);
   dropper.runToNewPosition(0);
-}
-
-
-void select_box(BatteryBoxes box) {
-  int dur;
-  switch (box)
-  case empty:
-    drop();
-    return;
-  case partial:
-    dur = 600;
-    break;
-  case full:
-    dur = 1200;
-  break;
-  timedWrite(CART_RIGHT_PIN, dur);
-  drop();
   delay(500);
-  timedWrite(CART_LEFT_PIN, dur * 1.2);
-}
-
-void test()
-{
-  int box;
-  fetch();
-  box = measure_bat();
-  eject();
-  select_box(box);
+  move_cart(CART_LEFT_PIN, duration * 1.2);
 }
 
 void loop() {
@@ -187,16 +136,56 @@ void loop() {
 
 void CartTask( void *pvParameters )
 {
+  // Calibrate Cart
+  pinMode(CART_LEFT_PIN, OUTPUT);
+  pinMode(CART_RIGHT_PIN, OUTPUT);
+  move_cart(CART_LEFT_PIN, 1600);
+  
+  // Setup Dropper
+  dropper.setMaxSpeed(500);
+  dropper.setAcceleration(1000);
+  dropper.setSpeed(100);
+  dropper.runToNewPosition(1202);
+  dropper.runToNewPosition(2);
+
+  // Cart is in position
+  xSemaphoreGive(xCartMutex);
   while (1)
   {
-
+    if( xSemaphoreTake(xBatteryMutex, portMAX_DELAY) == pdTRUE )
+    {
+      drop_battery_to_box(selected_box);
+      xSemaphoreGive(xCartMutex);
+    }
   }
 }
 
 void GaugeTask( void *pvParameters )
 {
+  BatteryBoxes selected_box_thread;
+
+  // Measure Servo Setup
+  measure_servo.attach(MEASURE_SERVO_PIN);
+  measure_servo.write(MEASURE_SERVO_OPEN_POSITION);
+
+  // Setup Loader
+  pinMode(LOADER_DISABLE_PIN, OUTPUT);
+
+  loader.setMaxSpeed(1000);
+  loader.setAcceleration(10000);
+  loader.setSpeed(1000);
+  loader.runToNewPosition(0);
+  
+  digitalWrite(LOADER_DISABLE_PIN, HIGH);
   while (1)
   {
-
+    load_battery();
+    selected_box_thread = measure_voltage();
+    if ( xSemaphoreTake(xCartMutex, portMAX_DELAY) == pdTRUE )
+    {
+        eject_battery();
+        selected_box = selected_box_thread;
+        xSemaphoreGive(xBatteryMutex);
+    }
   }
 }
