@@ -157,6 +157,7 @@ void CartTask( void *pvParameters )
       drop_battery_to_box(selected_box);
       xSemaphoreGive(xCartMutex);
     }
+    vTaskDelay(500 / portTICK_PERIOD_MS);
   }
 }
 
@@ -181,11 +182,10 @@ void GaugeTask( void *pvParameters )
   {
     load_battery();
     selected_box_thread = measure_voltage();
-    if ( xSemaphoreTake(xCartMutex, portMAX_DELAY) == pdTRUE )
-    {
-        eject_battery();
-        selected_box = selected_box_thread;
-        xSemaphoreGive(xBatteryMutex);
-    }
+    while ( xSemaphoreTake(xCartMutex, portMAX_DELAY) != pdTRUE ) { vTaskDelay(500 / portTICK_PERIOD_MS); }
+    eject_battery();
+    selected_box = selected_box_thread;
+    xSemaphoreGive(xBatteryMutex);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
