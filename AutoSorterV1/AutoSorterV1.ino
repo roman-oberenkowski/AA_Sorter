@@ -58,7 +58,7 @@ void setup()
 void load_battery() {
   digitalWrite(LOADER_DISABLE_PIN, LOW);
   loader.runToNewPosition(300);
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
+  vTaskDelay(200 / portTICK_PERIOD_MS);
   loader.runToNewPosition(0);
   digitalWrite(LOADER_DISABLE_PIN, HIGH);
 }
@@ -66,7 +66,7 @@ void load_battery() {
 void eject_battery() {
   digitalWrite(LOADER_DISABLE_PIN, LOW);
   loader.runToNewPosition(-700);
-  vTaskDelay(500 / portTICK_PERIOD_MS);
+  vTaskDelay(50 / portTICK_PERIOD_MS);
   loader.runToNewPosition(0);
   digitalWrite(LOADER_DISABLE_PIN, HIGH);
 }
@@ -115,15 +115,19 @@ void drop_battery_to_box(BatteryBoxes box) {
   {
     case empty:
       duration = 0;
+      
       break;
     case partial:
       duration = 600;
+      
       break;
     case full:
       duration = 1200;
       break;
   }
   move_cart(CART_RIGHT_PIN, duration);
+  if(box==empty)vTaskDelay(1000 / portTICK_PERIOD_MS);
+  if(box==partial)vTaskDelay(500 / portTICK_PERIOD_MS);
   xSemaphoreGive(xDropperOpenMutex);
   move_cart(CART_LEFT_PIN, duration * 1.2);
 }
@@ -140,7 +144,7 @@ void DropperTask( void *pvParameters )
   // Setup Dropper
   dropper.setMaxSpeed(500);
   dropper.setAcceleration(1000);
-  dropper.setSpeed(100);
+  dropper.setSpeed(300);
   dropper.runToNewPosition(1202);
   dropper.runToNewPosition(2);
   
@@ -149,9 +153,9 @@ void DropperTask( void *pvParameters )
     if(xSemaphoreTake(xDropperOpenMutex, portMAX_DELAY) == pdTRUE)
     {
       dropper.runToNewPosition(450);
-      vTaskDelay(500 / portTICK_PERIOD_MS);
+      vTaskDelay(50 / portTICK_PERIOD_MS);
       dropper.runToNewPosition(0);
-      vTaskDelay(500 / portTICK_PERIOD_MS);
+      vTaskDelay(100 / portTICK_PERIOD_MS);
       xSemaphoreGive(xDropperCloseMutex);
     }
     vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -190,9 +194,9 @@ void GaugeTask( void *pvParameters )
   // Setup Loader
   pinMode(LOADER_DISABLE_PIN, OUTPUT);
 
-  loader.setMaxSpeed(1000);
+  loader.setMaxSpeed(2000);
   loader.setAcceleration(10000);
-  loader.setSpeed(1000);
+  loader.setSpeed(1500);
   loader.runToNewPosition(0);
   
   digitalWrite(LOADER_DISABLE_PIN, HIGH);
