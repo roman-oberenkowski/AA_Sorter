@@ -53,7 +53,7 @@ void setup()
 void load_battery() {
   digitalWrite(LOADER_DISABLE_PIN, LOW);
   loader.runToNewPosition(300);
-  delay(1000);
+  vTaskDelay(1000);
   loader.runToNewPosition(0);
   digitalWrite(LOADER_DISABLE_PIN, HIGH);
 }
@@ -61,7 +61,7 @@ void load_battery() {
 void eject_battery() {
   digitalWrite(LOADER_DISABLE_PIN, LOW);
   loader.runToNewPosition(-700);
-  delay(500);
+  vTaskDelay(500);
   loader.runToNewPosition(0);
   digitalWrite(LOADER_DISABLE_PIN, HIGH);
 }
@@ -73,7 +73,7 @@ BatteryBoxes measure_voltage() {
   int voltage = 0;
   
   measure_servo.write(MEASURE_SERVO_CLOSE_POSITION);
-  delay(1000);
+  vTaskDelay(1000);
 
   for(int i=0; i<7;i++)
   {
@@ -94,13 +94,13 @@ BatteryBoxes measure_voltage() {
   else box = partial;
   
   measure_servo.write(MEASURE_SERVO_OPEN_POSITION);
-  delay(500);
+  vTaskDelay(500);
   return box;
 }
 
 void move_cart(int pin, int milis) {
   digitalWrite(pin, HIGH);
-  delay(milis);
+  vTaskDelay(milis);
   digitalWrite(pin, LOW);
 }
 
@@ -120,9 +120,9 @@ void drop_battery_to_box(BatteryBoxes box) {
   }
   move_cart(CART_RIGHT_PIN, duration);
   dropper.runToNewPosition(450);
-  delay(100);
+  vTaskDelay(100);
   dropper.runToNewPosition(0);
-  delay(500);
+  vTaskDelay(500);
   move_cart(CART_LEFT_PIN, duration * 1.2);
 }
 
