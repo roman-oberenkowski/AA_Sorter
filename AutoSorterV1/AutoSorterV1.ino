@@ -25,6 +25,7 @@ Servo measure_servo;
 
 SemaphoreHandle_t xCartMutex;
 SemaphoreHandle_t xBatteryMutex;
+SemaphoreHandle_t xDropperMutex;
 
 enum BatteryBoxes { empty, partial, full };
 
@@ -41,6 +42,7 @@ void setup()
   // Creating Mutexes
   xCartMutex = xSemaphoreCreateBinary();    // Cart is ready to accept new battery
   xBatteryMutex = xSemaphoreCreateBinary(); // Battery is ready to be loaded into a dropper
+  xDropperMutex = xSemaphoreCreateBinary(); // Dropper is closed
   if (xCartMutex != NULL && xBatteryMutex != NULL) {
     Serial.println("Mutex created");
   }
@@ -136,6 +138,7 @@ void DropperTask( void *pvParameters )
   vTaskDelay(100 / portTICK_PERIOD_MS);
   dropper.runToNewPosition(0);
   vTaskDelay(500 / portTICK_PERIOD_MS);
+  xSemaphoreGive(xDropperMutex);
 }
 
 void CartTask( void *pvParameters )
@@ -154,6 +157,7 @@ void CartTask( void *pvParameters )
 
   // Cart is in position
   xSemaphoreGive(xCartMutex);
+  xSemaphoreGive(xDropperMutex);
   while (1)
   {
     if( xSemaphoreTake(xBatteryMutex, portMAX_DELAY) == pdTRUE )
@@ -187,8 +191,9 @@ void GaugeTask( void *pvParameters )
     load_battery();
     selected_box_thread = measure_voltage();
     while ( xSemaphoreTake(xCartMutex, portMAX_DELAY) != pdTRUE ) { vTaskDelay(500 / portTICK_PERIOD_MS); }
-    eject_battery();
     selected_box = selected_box_thread;
+    while ( xSemaphoreTake(xDropperMutex, portMAX_DELAY) != pdTRUE ) { vTaskDelay(100 / portTICK_PERIOD_MS); }
+    eject_battery();
     xSemaphoreGive(xBatteryMutex);
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
