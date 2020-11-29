@@ -3,6 +3,7 @@ Embedded systems project
 
 Target platform: Arduino UNO R3
 
+
 Pinout and schematic:
 ![schematic](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/schematic.PNG)
 
@@ -22,6 +23,10 @@ B | Fetching part - responsible for fetching one battery and measureing its volt
  B3 | Battery terminals
  B4 | Servo for thghtening the terminals together and get reliable voltage read
 
+Fetching part demo:
+![fetch](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/fetch.gif)
+Sorting part demo:
+![fetch](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/drop.gif)
 
 Parts list:
 - Arduino Uno R3
