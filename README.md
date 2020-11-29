@@ -6,17 +6,21 @@ Target platform: Arduino UNO R3
 Pinout and schematic:
 ![schematic](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/schematic.PNG)
 
-A -> Sorting part - responsible for putting the battery into apprioprate box
- A1 - Trapdoor motor - drops the battery from cart into the box
- A2 - Driver for A1
- A3 - Driver for A4
- A4 - Old printer carriage motor - moves the cart to end up over the apprioprate box
+Symbol | Description
+------------ | -------------
+A | Sorting part - responsible for putting the battery into apprioprate box
+ A1 | Trapdoor motor - drops the battery from cart into the box
+ A2 | Driver for A1
+ A3 | Driver for A4
+ A4 | Old printer carriage motor - moves the cart to end up over the apprioprate box
  
-B -> Fetching part - responsible for fetching one battery and measureing its voltage
- B1 - Rotates fetching module to grab one battery and drop it into the cart
- B2 - Driver for B1
- B3 - Battery terminals
- B4 - Servo for thghtening the terminals together and get reliable voltage read
+Symbol | Description
+------------ | -------------
+B | Fetching part - responsible for fetching one battery and measureing its voltage
+ B1 | Rotates fetching module to grab one battery and drop it into the cart
+ B2 | Driver for B1
+ B3 | Battery terminals
+ B4 | Servo for thghtening the terminals together and get reliable voltage read
 
 
 Parts list:
