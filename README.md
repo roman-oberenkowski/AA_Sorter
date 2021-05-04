@@ -1,7 +1,8 @@
-# Automatic AA batery
-Embedded systems project
+# Automatic AA batery sorter
+Embedded systems project (own idea)
 Target platform: Arduino UNO R3
-
+# Goal
+Sort AA baterries into apprioprate boxes, according to their charge level (voltage)
 # Pinout and schematic:
 ![schematic](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/schematic.PNG)
 
@@ -34,3 +35,4 @@ B | Fetching part - responsible for fetching one battery and measureing its volt
 - Relay-based DC motor driver
 - Servo 
 - Misc. parts (wood, screws, wires...)
+
