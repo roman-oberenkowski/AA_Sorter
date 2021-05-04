@@ -1,10 +1,8 @@
 # Automatic AA batery
 Embedded systems project
-
 Target platform: Arduino UNO R3
 
-
-Pinout and schematic:
+# Pinout and schematic:
 ![schematic](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/schematic.PNG)
 
 Symbol | Description
@@ -23,12 +21,12 @@ B | Fetching part - responsible for fetching one battery and measureing its volt
  B3 | Battery terminals
  B4 | Servo for thghtening the terminals together and get reliable voltage read
 
-Fetching part demo:
+# Fetching part demo:
 ![fetch](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/fetch.gif)
-Sorting part demo:
+# Sorting part demo:
 ![fetch](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/drop.gif)
 
-Parts list:
+# Parts list:
 - Arduino Uno R3
 - Stepper motor 28BYJ-48 with ULN2003 driver
 - Stepper motor Nema 17 with EasyDriver board
