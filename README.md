@@ -1,6 +1,7 @@
 # Automatic AA battery sorter
 Embedded systems project (own idea)
 Target platform: Arduino UNO R3
+
 # Goal
 Sort AA batteries into apprioprate boxes, according to their charge level (voltage)
 # Pinout and schematic:
@@ -26,6 +27,8 @@ B | Fetching part - responsible for fetching one battery and measureing its volt
 ![fetch](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/fetch.gif)
 # Sorting part demo:
 ![fetch](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/drop.gif)
+# More photos/videos
+[GDrive Folder](https://drive.google.com/drive/folders/1p8NeqVa4kalhZfYfQNXmAx-9DJeZ6ftd?usp=sharing)
 
 # Parts list:
 - Arduino Uno R3
