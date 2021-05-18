@@ -1,8 +1,8 @@
-# Automatic AA batery sorter
+# Automatic AA battery sorter
 Embedded systems project (own idea)
 Target platform: Arduino UNO R3
 # Goal
-Sort AA baterries into apprioprate boxes, according to their charge level (voltage)
+Sort AA batteries into apprioprate boxes, according to their charge level (voltage)
 # Pinout and schematic:
 ![schematic](https://github.com/roman-oberenkowski/SW-AA_Sorter/blob/main/resources/schematic.PNG)
 
